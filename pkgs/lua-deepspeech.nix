@@ -25,10 +25,19 @@ stdenv.mkDerivation {
   postPatch = ''
     sed -i "s/deepspeech.h/coqui-stt.h/g" lua_deepspeech.c
     sed -i "s/DS_/STT_/g" lua_deepspeech.c
+    sed -i "s/libdeepspeech.so/libstt.so/g" CMakeLists.txt
+    echo "
+    find_package(PkgConfig)
+    pkg_search_module(LUAJIT REQUIRED luajit)
+    include_directories(''${LUAJIT_INCLUDE_DIRS})
+    set(LOVR_LUA ''${LUAJIT_LIBRARIES})
+    install(TARGETS lua-deepspeech DESTINATION lib/)
+    " >> CMakeLists.txt
   '';
 
   cmakeFlags = [
-    "-DDEEPSPEECH_PATH=${stt}"
+    "-DDEEPSPEECH_PATH=${stt}/lib"
+    "-DLOVR=On"
   ];
 
   nativeBuildInputs = [
@@ -39,7 +48,6 @@ stdenv.mkDerivation {
 
   buildInputs = [
     stt
-    lua
     luajit
   ];
 }
