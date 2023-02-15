@@ -1,0 +1,82 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0f8f5cf0..f7386f08 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -194,8 +194,8 @@ if(LOVR_USE_GLSLANG)
+     "${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/StandAlone/ResourceLimits.cpp"
+     "${CMAKE_CURRENT_SOURCE_DIR}/deps/glslang/StandAlone/resource_limits_c.cpp"
+     )
+-  target_link_libraries(lovr_glslang PUBLIC glslang)
+-  set(LOVR_GLSLANG lovr_glslang SPIRV)
++  target_link_libraries(lovr_glslang PUBLIC glslang SPIRV)
++  set(LOVR_GLSLANG lovr_glslang) # SPIRV
+ endif()
+ 
+ # Vulkan
+@@ -301,7 +301,6 @@ endif()
+ 
+ # Plugins
+ set(LOVR 1)
+-link_libraries(${LOVR_LUA})
+ if(NOT DEFINED LOVR_PLUGINS)
+   file(GLOB LOVR_PLUGINS ${CMAKE_SOURCE_DIR}/plugins/*)
+ endif()
+@@ -360,6 +359,7 @@ target_include_directories(lovr PRIVATE
+ )
+ 
+ target_link_libraries(lovr
++  -lm
+   ${LOVR_GLFW}
+   ${LOVR_LUA}
+   ${LOVR_MSDF}
+@@ -842,41 +842,16 @@ elseif(ANDROID)
+   endif()
+ elseif(UNIX)
+   target_sources(lovr PRIVATE src/core/os_linux.c)
++  install(TARGETS lovr DESTINATION bin/)
++  target_compile_definitions(lovr PRIVATE -DLOVR_GL)
++  install(TARGETS msdfgen ode DESTINATION lib/)
++  if(LOVR_USE_LINUX_EGL)
++    target_compile_definitions(lovr PRIVATE LOVR_LINUX_EGL)
++  else()
++    target_compile_definitions(lovr PRIVATE LOVR_LINUX_X11)
++  endif()
+   set_target_properties(lovr PROPERTIES
+     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+-    BUILD_WITH_INSTALL_RPATH TRUE
+-    INSTALL_RPATH "\$ORIGIN"
+   )
+-  function(move_lib)
+-    if(TARGET ${ARGV0})
+-      get_target_property(TARGET_TYPE ${ARGV0} TYPE)
+-      if(${TARGET_TYPE} STREQUAL "MODULE_LIBRARY")
+-        add_custom_command(TARGET move_files POST_BUILD
+-          COMMAND ${CMAKE_COMMAND} -E copy
+-          $<TARGET_FILE:${ARGV0}>
+-          ${CMAKE_BINARY_DIR}/bin/$<TARGET_FILE_NAME:${ARGV0}>
+-        )
+-      elseif(${TARGET_TYPE} STREQUAL "SHARED_LIBRARY")
+-        add_custom_command(TARGET move_files POST_BUILD
+-          COMMAND ${CMAKE_COMMAND} -E copy
+-          $<TARGET_SONAME_FILE:${ARGV0}>
+-          ${CMAKE_BINARY_DIR}/bin/$<TARGET_SONAME_FILE_NAME:${ARGV0}>
+-        )
+-      endif()
+-    endif()
+-  endfunction()
+-  move_lib(${LOVR_GLFW})
+-  move_lib(${LOVR_LUA})
+-  move_lib(${LOVR_ODE})
+-  move_lib(${LOVR_MSDF})
+-  move_lib(${LOVR_OPENXR})
+-  move_lib(${LOVR_OCULUS_AUDIO})
+-  foreach(target ${ALL_PLUGIN_TARGETS})
+-    move_lib(${target})
+-  endforeach()
+-  if(LOVR_BUILD_BUNDLE)
+-    move_resource("lovr.desktop")
+-    move_resource("AppRun")
+-    move_resource("logo.svg")
+-  endif()
+ endif()
++
