@@ -10,7 +10,7 @@
 }:
 
 stdenv.mkDerivation {
-  name = "lua-libsodium";
+  name = "luasodium";
   src = fetchFromGitHub {
     owner = "jprjr";
     repo = "luasodium";

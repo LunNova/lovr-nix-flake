@@ -22,12 +22,12 @@
                 inherit (self) lovr;
                 plugins = with self; [
                   # lua-deepspeech # FIXME: doesn't build
-                  lua-libsodium
+                  luasodium
                   luv
                 ];
               };
               lua-deepspeech = pkgs.callPackage ./pkgs/lua-deepspeech.nix { };
-              lua-libsodium = pkgs.callPackage ./pkgs/lua-libsodium.nix { };
+              luasodium = pkgs.callPackage ./pkgs/luasodium.nix { };
               luv = pkgs.callPackage ./pkgs/luv.nix { };
             };
           in
