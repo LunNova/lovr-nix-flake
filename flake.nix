@@ -21,7 +21,7 @@
               lovr-all-plugins = pkgs.callPackage ./pkgs/lovr-plugged.nix {
                 inherit (self) lovr;
                 plugins = with self; [
-                  # lua-deepspeech # FIXME: doesn't build
+                  lua-deepspeech
                   luasodium
                   luv
                 ];

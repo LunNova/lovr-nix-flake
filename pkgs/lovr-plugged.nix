@@ -13,7 +13,7 @@ symlinkJoin {
     rm $out/bin/lovr
     cp ${lovr}/bin/lovr $out/bin/lovr
 
-    for plugin in "$out"/lib/lua/*/*.so; do
+    for plugin in "$out"/lib/{lua/*,}/*.so; do
       ln -s "$plugin" $out/bin/$(basename "$plugin")
     done
   '';
